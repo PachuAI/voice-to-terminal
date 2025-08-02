@@ -8,23 +8,22 @@ This is a **Voice-to-Text Assistant** specifically designed for interacting with
 
 ## Core Architecture
 
-### Voice Recognition Engines
-The project experiments with multiple speech-to-text engines, each with different trade-offs:
+### Voice Recognition Engine
+The project uses **OpenAI Whisper** with faster-whisper implementation:
 
-1. **Vosk** (Primary) - Offline, fast, moderate accuracy
-2. **Google Speech Recognition** - Online, good accuracy, includes punctuation
-3. **Whisper/faster-whisper** - Offline, high accuracy, slower processing
+- **Whisper Base** - 74MB, 3-4s latency, ~92% accuracy (balance)
+- **Whisper Small** - 244MB, 5-8s latency, ~94% accuracy (precision)
 
 ### Key Components Architecture
 
 **Control System:**
 - `Ctrl+L` activation/deactivation to prevent interference between terminals
-- Multiple modes: Manual (SPACE key) and Speak (continuous recording)
+- Multiple modes: Manual (SPACE key) and Speak (continuous recording with VAD)
 - Automatic clipboard integration for seamless Claude Code workflow
 
 **Audio Processing Pipeline:**
 ```
-Audio Input → Voice Recognition Engine → Text Processing → Clipboard Copy → Claude Code
+Audio Input → VAD Detection → Pre-buffer → Whisper Processing → Clipboard Copy → Claude Code
 ```
 
 **Threading Model:**
@@ -32,12 +31,18 @@ Audio Input → Voice Recognition Engine → Text Processing → Clipboard Copy 
 - Separate threads for audio recording to prevent blocking
 - Background processing for transcription without interrupting user flow
 
-## Current State & Recommended Usage
+## Current State & Production Versions
 
-### Primary Versions (Production Ready)
-- **`voice_activated_large.py`** - Vosk Large model, best balance of speed/accuracy
-- **`voice_debug.py`** - Google Speech Recognition fallback, requires internet
-- **`voice_whisper_tiny.py`** - Latest Whisper Base experiment (in testing)
+### Primary Production Files
+- **`voicebase.py`** - Whisper Base model, optimized for speed/balance
+- **`voicesmall.py`** - Whisper Small model, optimized for precision
+
+### Global Execution
+```bash
+# From anywhere in terminal:
+voicebase    # Launch Base model
+voicesmall   # Launch Small model
+```
 
 ### Development Commands
 
@@ -46,34 +51,19 @@ Audio Input → Voice Recognition Engine → Text Processing → Clipboard Copy 
 # Install dependencies
 pip install -r requirements.txt
 
-# Download Vosk models
-python download_vosk_large.py
-
-# For Whisper models (auto-download on first run)
-python voice_whisper_tiny.py
-```
-
-**Model Management:**
-```bash
-# Check downloaded models
-ls -la vosk-model-*/
-ls -la whisper_models/
-
-# Clean up unused models (see DOWNLOADS_LOG.md)
-rm -rf vosk-model-small-es-0.42/  # After confirming large works
-rm -rf whisper_models/            # If sticking with Vosk
+# Models download automatically on first run
+python voicebase.py
 ```
 
 **Testing:**
 ```bash
-# Test current production version
-python voice_activated_large.py
+# Test production versions
+python voicebase.py   # Base model
+python voicesmall.py  # Small model
 
-# Test experimental Whisper
-python voice_whisper_tiny.py
-
-# Test Google Speech fallback
-python voice_debug.py
+# Test globally
+voicebase     # From any directory
+voicesmall    # From any directory
 ```
 
 ## Technical Specifications
@@ -82,13 +72,17 @@ python voice_debug.py
 - **Sample Rate:** 16kHz (optimal for speech recognition)
 - **Channels:** Mono
 - **Format:** 16-bit PCM
-- **Chunk Size:** 1024-4096 samples (varies by engine)
+- **Chunk Size:** 1024 samples
 
-### Model Accuracy Benchmarks
-- **Vosk Small:** ~75-80% accuracy, ~100-200ms latency
-- **Vosk Large:** ~85-90% accuracy, ~300-500ms latency  
-- **Google Speech:** ~90-95% accuracy, ~1-3s latency
-- **Whisper Base:** ~90-92% accuracy, ~3-4s latency
+### VAD (Voice Activity Detection)
+- **Threshold:** 500 (voice detection sensitivity)
+- **Silence Duration:** 1.5s (pause detection)
+- **Pre-buffer:** 1.0s (captures words before detection)
+- **Min Speech:** 0.1s (minimum voice duration)
+
+### Model Performance Benchmarks
+- **Whisper Base:** ~92% accuracy, ~3-4s latency, 74MB
+- **Whisper Small:** ~94% accuracy, ~5-8s latency, 244MB
 
 ### Control Scheme
 **Universal Controls:**
@@ -97,38 +91,67 @@ python voice_debug.py
 
 **When Activated:**
 - `SPACE` - Manual mode (hold to record, release to transcribe)
-- `s` - Toggle speak mode (continuous recording)
-- `ENTER` - In speak mode: process current audio, copy to clipboard, restart recording
-
-## Known Issues & Limitations
-
-### Model-Specific Issues
-- **Vosk:** No automatic punctuation, context-dependent word changes
-- **Google Speech:** Requires internet, daily usage limits, occasional poor accuracy
-- **Whisper:** High latency (3-15s depending on model size), large memory footprint
-
-### Environment Dependencies
-- **Windows:** Requires proper microphone permissions and audio drivers
-- **Anaconda:** Known conflicts between numpy versions and some speech libraries
-- **Terminal:** Script must run in separate terminal from Claude Code to prevent key conflicts
+- `s` - Toggle speak mode (continuous recording with VAD)
+- `ENTER` - In speak mode: process accumulated audio, copy to clipboard
 
 ## File Organization
 
-### Core Scripts
-- `voice_activated_large.py` - Production Vosk version
-- `voice_debug.py` - Google Speech fallback
-- `voice_whisper_tiny.py` - Experimental Whisper implementation
-
-### Utility Scripts
-- `download_vosk_large.py` - Model downloader for Vosk
-- `download_model.py` - Legacy Vosk small model downloader
+### Core Production Scripts
+- `voicebase.py` - Main production script (Whisper Base)
+- `voicesmall.py` - High precision script (Whisper Small)
+- `voicebase.bat` - Global Windows launcher (Base)
+- `voicesmall.bat` - Global Windows launcher (Small)
 
 ### Documentation
-- `DOWNLOADS_LOG.md` - Tracks all downloaded models and dependencies
-- `TESTS_PRECISION.md` - Standardized tests for comparing model accuracy
-- `README.md` - User-facing documentation (outdated)
+- `docs/TECHNICAL_GUIDE.md` - Complete technical documentation
+- `docs/CURRENT_FEATURES.md` - Detailed current functionality
+- `docs/TESTS_PRECISION.md` - Model comparison and testing
+- `INSTALL_GLOBAL.md` - Global installation guide
+- `README.md` - User-facing documentation
 
-### Development Notes
-The project has gone through multiple iterations testing different speech recognition approaches. The `DOWNLOADS_LOG.md` file tracks which models/dependencies are currently used vs. experimental. Many Python files represent different experimental approaches and can be cleaned up once a final solution is chosen.
+### Configuration
+- `requirements.txt` - Python dependencies
+- `whisper_models/` - Downloaded Whisper models (auto-created)
 
-The activation system (`Ctrl+L`) is crucial for practical usage since the voice assistant runs in a separate terminal from Claude Code, preventing keyboard conflicts during normal typing.
+## Development Workflow
+
+### For Content Creation
+The project is designed for **educational content creation** about AI tool development:
+
+1. **MVP Complete** - Functional voice-to-text assistant
+2. **Documentation Ready** - All processes documented
+3. **Improvement Pipeline** - Clear roadmap for enhancements
+4. **Real Usage** - Daily use with Claude Code for development
+
+### Typical Development Session
+1. Open editor (Cursor/VS Code) in project directory
+2. Open separate terminal for voice assistant
+3. Launch: `voicebase` (from any directory)
+4. Activate with `Ctrl+L`
+5. Use voice commands seamlessly with development workflow
+
+### Content Roadmap
+- **Week 1:** Tool usage and basic improvements
+- **Future:** GUI development, advanced features, integrations
+- **Documentation:** Process videos, tutorial content
+
+## Known Limitations & Solutions
+
+### Current Limitations
+- **Windows Focus:** Optimized for Windows (cross-platform possible)
+- **Spanish Only:** Language hardcoded (multi-language planned)
+- **Terminal Based:** No GUI yet (GUI in roadmap)
+
+### Planned Improvements
+- [ ] Graphical configuration interface
+- [ ] Multi-language support
+- [ ] Real-time accuracy metrics
+- [ ] Editor integrations beyond clipboard
+- [ ] Voice commands (not just dictation)
+
+## Important Notes
+
+- **Separate Terminal Required:** Voice assistant must run in separate terminal from Claude Code to prevent hotkey conflicts
+- **Offline Operation:** After initial model download, works completely offline
+- **Global Access:** Can be launched from any directory after setup
+- **Educational Focus:** Designed for learning and content creation about AI tool development

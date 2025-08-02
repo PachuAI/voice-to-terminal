@@ -54,7 +54,7 @@
 
 ## 📊 Registro de Resultados:
 
-### Whisper Base (74MB):
+### voicebase.py - Whisper Base (74MB):
 **Párrafo 1:** [Anotar transcripción aquí]
 **Errores:** [Contar errores]
 **Puntuación:** [Verificar si agregó comas/puntos]
@@ -63,7 +63,7 @@
 **Errores:** [Contar errores]
 **Puntuación:** [Verificar si agregó comas/puntos]
 
-### Whisper Small (244MB):
+### voicesmall.py - Whisper Small (244MB):
 **Párrafo 1:** [Anotar transcripción aquí]
 **Errores:** [Contar errores] 
 **Puntuación:** [Verificar si agregó comas/puntos]
@@ -71,3 +71,18 @@
 **Párrafo 2:** [Anotar transcripción aquí]
 **Errores:** [Contar errores]
 **Puntuación:** [Verificar si agregó comas/puntos]
+
+---
+
+## 📋 Resultados de Tests Realizados
+
+### Ejemplo de Test Realizado:
+**Texto Original:** "Hola Claude, necesito que me ayudes a implementar una función en Python que utilice machine learning para analizar datos de usuarios. La función debe procesar archivos CSV, aplicar algoritmos de clasificación y generar reportes automáticos. También quiero integrar APIs de terceros como OpenAI y configurar un sistema de autenticación OAuth. ¿Podrías explicarme paso a paso cómo estructurar este proyecto?"
+
+**Base Result:** "Hola Cloud, necesito que me ayudes a implementar una función en Python que utilice Machine Learning para el ser datos de usuarios. La función debe procesar archivos CSB, aplicar algoritmos de clasificación y generar reportes automáticos. También quiero integrar APIs de terceros como el Open-Ai y configurar un sistema de autenticación. Podría ser aplicarme paso a paso como estructural de este proyecto."
+
+**Small Result:** "Hola Cloud, necesito que me ayudes a implementar una función en Python que utilice Machine Learning para analizar datos de usuarios. La función debe procesar archivos CSV, aplicar algoritmos de clasificación y generar reportes automáticos. También quiero integrar APIs de terceros como OpenAI y configurar un sistema de autenticación OAuth. ¿Podrías explicarme paso a paso cómo estructurar este proyecto?"
+
+**Análisis:**
+- **Base**: 6 errores importantes (Cloud, el ser, CSB, fragmentación OAuth)
+- **Small**: 1 error menor (Cloud), excelente precisión en términos técnicos
