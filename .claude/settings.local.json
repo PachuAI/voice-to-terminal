@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(setup.bat)",
+      "Bash(del voice_to_claude.py voice_simple.py voice_continuous.py voice_fixed.py test_mic.py setup.bat)",
+      "Bash(rm:*)",
+      "Bash(pip install:*)",
+      "Bash(python:*)",
+      "WebFetch(domain:alphacephei.com)",
+      "WebFetch(domain:cdn.openai.com)",
+      "Bash(mv:*)",
+      "Bash(cp:*)",
+      "Bash(mkdir:*)",
+      "Bash(git init:*)",
+      "Bash(git remote add:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": []
+  }
+}

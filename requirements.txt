@@ -1,0 +1,9 @@
+SpeechRecognition
+pyaudio
+keyboard
+vosk
+rich
+colorama
+pyperclip
+textual
+RealtimeSTT
