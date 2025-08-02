@@ -53,9 +53,19 @@ pip install -r requirements.txt
 
 3. **Ejecutar:**
 ```bash
+# Desde la carpeta del proyecto:
 python voicebase.py  # Modelo base
-# o
 python voicesmall.py # Modelo small
+
+# O instalar globalmente (recomendado):
+# Ver INSTALL_GLOBAL.md para instalación global
+```
+
+4. **Uso global (opcional):**
+```bash
+# Después de instalación global, desde cualquier carpeta:
+voicebase    # Modelo base
+voicesmall   # Modelo small
 ```
 
 ## 🔧 Requisitos
@@ -71,8 +81,13 @@ python voicesmall.py # Modelo small
 voice-to-terminal/
 ├── voicebase.py          # Modelo Whisper Base (balance)
 ├── voicesmall.py         # Modelo Whisper Small (precisión)
+├── voicebase.bat         # Script global Windows (base)
+├── voicesmall.bat        # Script global Windows (small)
 ├── requirements.txt      # Dependencias Python
 ├── docs/                # Documentación detallada
+│   ├── TECHNICAL_GUIDE.md    # Guía técnica completa
+│   └── CURRENT_FEATURES.md   # Funcionalidades actuales
+├── INSTALL_GLOBAL.md     # Instalación global
 ├── whisper_models/      # Modelos descargados (auto-generado)
 └── README.md           # Este archivo
 ```
